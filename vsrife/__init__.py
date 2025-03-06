@@ -644,18 +644,14 @@ def rife(
 
                 if cache_to_delete >= 2:
                     if cache_to_delete in frame_cache:
-                        try:
-                            del frame_cache[cache_to_delete]
-                            del frame_cache[cache_to_delete + 1]
-                        finally:
-                            pass
+                        del frame_cache[cache_to_delete]
+                    if cache_to_delete + 1 in frame_cache:
+                        del frame_cache[cache_to_delete + 1]
 
                     if cache_to_delete in encode_cache:
-                        try:
-                            del encode_cache[cache_to_delete]
-                            del encode_cache[cache_to_delete + 1]
-                        finally:
-                            pass
+                        del encode_cache[cache_to_delete]
+                    if cache_to_delete + 1 in encode_cache:
+                        del encode_cache[cache_to_delete + 1]
 
             t = n * factor_den % factor_num / factor_num
 
