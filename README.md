@@ -43,3 +43,11 @@ ret = rife(clip)
 ```
 
 See `__init__.py` for the description of the parameters.
+
+
+## Benchmarks
+
+| model                | scale | os    | hardware           | arch                                                       | fps 720 | fps 1080 | vram 720 | vram 1080 | backend                                                                  | verified output                    | batch | level | streams | threads | onnx      | onnxslim / onnxsim | onnx shape  | trtexec shape | precision | usage                                                                                               |
+|----------------------| ----- | ----- |--------------------|------------------------------------------------------------|---------|----------|----------|-----------| ------------------------------------------------------------------------ | ---------------------------------- | ----- | ----- |---------|---------| --------- | ------------------ | ----------- | ------------- | --------- |-----------------------------------------------------------------------------------------------------|
+| rife 4.26 heavy      | 2x    | Linux | 3070laptop / 12400 | [rife](https://github.com/hzwer/Practical-RIFE) (4.26)     | 119     | 53       | 3gb      | 5gb       | trt 10.8, torch 20241231+cu126, torch_trt 20250102+cu126 (holywu vsrife) | yes, works                         | 1     | 5     | -       | 8       | -         | -                  | -           | static        | RGBH      | rife(clip, trt=True, trt_static_shape=True, model="4.26.heavy", trt_optimization_level=5, sc=False) |
+| drba rife 4.26 heavy | 2x    | Linux | 3070laptop / 12400 | [drba_rife](https://github.com/routineLife1/DRBA) (4.26)   | 76      | 34       | 3gb      | 5gb       | trt 10.8, torch 20241231+cu126, torch_trt 20250102+cu126 (holywu vsrife) | yes, works                         | 1     | 5     | -       | 8       | -         | -                  | -           | static        | RGBH      | rife(clip, trt=True, trt_static_shape=True, model="4.26.heavy", trt_optimization_level=5, sc=False) |
