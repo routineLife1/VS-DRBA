@@ -270,7 +270,7 @@ def rife(
                     torch.zeros([1, encode_channel, ph, pw], dtype=dtype, device=device),
                     torch.zeros([1, encode_channel, ph, pw], dtype=dtype, device=device),
                 )
-                
+
             else:
                 flownet_example_inputs = (
                     torch.zeros([1, 3, ph, pw], dtype=dtype, device=device),
@@ -279,7 +279,7 @@ def rife(
                     torch.zeros([2], dtype=torch.float, device=device),
                     torch.zeros([1, 2, ph, pw], dtype=torch.float, device=device),
                 )
-                
+
                 block0_example_inputs = (
                     torch.zeros([1, 3, ph, pw], dtype=dtype, device=device),
                     torch.zeros([1, 3, ph, pw], dtype=dtype, device=device),
@@ -326,7 +326,7 @@ def rife(
                         "f0": {2: dim_height, 3: dim_width},
                         "f1": {2: dim_height, 3: dim_width},
                     }
-                    
+
                     flownet_inputs = [
                         torch_tensorrt.Input(
                             min_shape=[1, 3] + trt_min_shape,
@@ -424,7 +424,7 @@ def rife(
                         ),
                     ]
 
-                    
+
                 else:
                     flownet_dynamic_shapes = {
                         "img0": {2: dim_height, 3: dim_width},
@@ -525,7 +525,7 @@ def rife(
             block0_program = torch.export.export(
                 block0, block0_example_inputs, dynamic_shapes=block0_dynamic_shapes
             )
-            
+
             block0 = torch_tensorrt.dynamo.compile(
                 block0_program,
                 block0_inputs,
@@ -625,13 +625,13 @@ def rife(
             encode_cache[n] = output
 
             return f
-            
+
     @torch.inference_mode()
     def distance_calculator(_x):
         dtype = _x.dtype
         u, v = _x[:, 0:1].float(), _x[:, 1:].float()
         return torch.sqrt(u ** 2 + v ** 2).to(dtype)
-    
+
     @torch.inference_mode()
     def inference(n: int, f: list[vs.VideoFrame]) -> vs.VideoFrame:
         with inf_f2t_stream_lock, torch.cuda.stream(inf_f2t_stream):
@@ -642,19 +642,14 @@ def rife(
 
                 cache_to_delete = real_n - 10
 
-                for i in range(cache_to_delete):
-                    if i in frame_cache:
-                        del frame_cache[i]
+                if cache_to_delete >= 2:
+                    if cache_to_delete in frame_cache:
+                        del frame_cache[cache_to_delete]
+                        del frame_cache[cache_to_delete + 1]
 
-                    if i in encode_cache:
-                        del encode_cache[i]
-                
-                # if cache_to_delete >= 1:
-                #     if cache_to_delete in frame_cache:
-                #         del frame_cache[cache_to_delete]
-
-                #     if cache_to_delete in encode_cache:
-                #         del encode_cache[cache_to_delete]
+                    if cache_to_delete in encode_cache:
+                        del encode_cache[cache_to_delete]
+                        del encode_cache[cache_to_delete + 1]
 
             t = n * factor_den % factor_num / factor_num
 
@@ -725,7 +720,7 @@ def rife(
             ones_mask = flo0.clone() * 0 + 1
             cflo0 = torch.cat((flo0, ones_mask), dim=1)
             cflo1 = torch.cat((flo1, ones_mask), dim=1)
-            
+
             wflo0 = fwarp(cflo0, flo0, None, 'avg')
             wflo1 = fwarp(cflo1, flo1, None, 'avg')
 
@@ -743,7 +738,7 @@ def rife(
 
             flo0 = wflo0 * 2
             flo1 = wflo1 * 2
-            
+
             d10 = distance_calculator(flo0) + 1e-4
             d12 = distance_calculator(flo1) + 1e-4
 
@@ -755,7 +750,7 @@ def rife(
 
             # # drm_t0_unaligned = drm10 * tmp_t * 2
             drm_t1_unaligned = drm12 * tmp_t * 2
-            
+
             # drm_t0_unaligned = drm10 * (1 - timestep[t]) * 2
             # drm_t1_unaligned = drm12 * (1 - timestep[t]) * 2
 
@@ -763,7 +758,7 @@ def rife(
             # if the input image order is I0, I1, you need to use drm_t_I0_t01.
             # Conversely, if the order is reversed, you should use drm_t_I1_t01.
             # The same rule applies when processing intermediate frames between I1 and I2.
-        
+
             # For RIFE, drm should be aligned with the time corresponding to the intermediate frame.
             # drm_t0_t01 = fwarp(drm_t0_unaligned, flo0 * drm_t0_unaligned, None, 'avg')
             drm_t1_t01 = fwarp(drm_t1_unaligned, flo0 * drm_t1_unaligned, None, 'avg')
@@ -771,16 +766,16 @@ def rife(
             # drm_t2_t12 = fwarp(drm_t1_unaligned, flo1 * drm_t1_unaligned, None, 'avg')
 
             ones_mask = drm10.clone() * 0 + 1
-        
+
             mask_t1_t01 = fwarp(ones_mask, flo0 * drm_t1_unaligned, None, 'avg')
             # mask_t1_t12 = fwarp(ones_mask, flo1 * drm_t0_unaligned, None, 'avg')
-        
+
             gap_t1_t01 = mask_t1_t01 < 0.999
             # gap_t1_t12 = mask_t1_t12 < 0.999
-        
+
             drm_t1_t01[gap_t1_t01] = drm_t1_unaligned[gap_t1_t01]
             # drm_t1_t12[gap_t1_t12] = drm_t0_unaligned[gap_t1_t12]
-            
+
             drm_t1_t01 = F.interpolate(drm_t1_t01, size=(img1.shape[2], img1.shape[3]), mode="bilinear", align_corners=False)
             # drm_t1_t12 = F.interpolate(drm_t1_t12, size=(img1.shape[2], img1.shape[3]), mode="bilinear", align_corners=False)
 
@@ -794,7 +789,7 @@ def rife(
             #     output = flownet(img1, img0, torch.full([1, 1, ph, pw], 0.5, dtype=dtype, device=device), tenFlow_div, backwarp_tenGrid, f1, f0)
             # else:
             #     output = flownet(img1, img0, torch.full([1, 1, ph, pw], 0.5, dtype=dtype, device=device), tenFlow_div, backwarp_tenGrid)
-            
+
             inf_stream.synchronize()
 
         with inf_t2f_stream_lock, torch.cuda.stream(inf_t2f_stream):
