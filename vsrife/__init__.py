@@ -748,13 +748,8 @@ def rife(
             drm10 = d10 / (d10 + d12)
             drm12 = d12 / (d10 + d12)
 
-            tmp_t = 1 - F.interpolate(timestep[t], size=(drm10.shape[2], drm10.shape[3]), mode="bilinear", align_corners=False)
-
-            # # drm_t0_unaligned = drm10 * tmp_t * 2
-            drm_t1_unaligned = drm12 * tmp_t * 2
-
-            # drm_t0_unaligned = drm10 * (1 - timestep[t]) * 2
-            # drm_t1_unaligned = drm12 * (1 - timestep[t]) * 2
+            # # drm_t0_unaligned = drm10 * (1 - t) * 2
+            drm_t1_unaligned = drm12 * (1 - t) * 2
 
             # When using RIFE to generate intermediate frames between I0 and I1,
             # if the input image order is I0, I1, you need to use drm_t_I0_t01.
@@ -762,18 +757,21 @@ def rife(
             # The same rule applies when processing intermediate frames between I1 and I2.
 
             # For RIFE, drm should be aligned with the time corresponding to the intermediate frame.
-            # drm_t0_t01 = fwarp(drm_t0_unaligned, flo0 * drm_t0_unaligned, None, 'avg')
-            drm_t1_t01 = fwarp(drm_t1_unaligned, flo0 * drm_t1_unaligned, None, 'avg')
-            # drm_t1_t12 = fwarp(drm_t0_unaligned, flo1 * drm_t0_unaligned, None, 'avg')
-            # drm_t2_t12 = fwarp(drm_t1_unaligned, flo1 * drm_t1_unaligned, None, 'avg')
-
             ones_mask = drm10.clone() * 0 + 1
 
-            mask_t1_t01 = fwarp(ones_mask, flo0 * drm_t1_unaligned, None, 'avg')
-            # mask_t1_t12 = fwarp(ones_mask, flo1 * drm_t0_unaligned, None, 'avg')
+            # drm_t0_t01 = fwarp(torch.cat((drm_t0_unaligned, ones_mask), dim=1), flo0 * drm_t0_unaligned, None, 'avg')
+            drm_t1_t01 = fwarp(torch.cat((drm_t1_unaligned, ones_mask), dim=1), flo0 * drm_t1_unaligned, None, 'avg')
+            # drm_t1_t12 = fwarp(torch.cat((drm_t0_unaligned, ones_mask), dim=1), flo1 * drm_t0_unaligned, None, 'avg')
+            # drm_t2_t12 = fwarp(torch.cat((drm_t1_unaligned, ones_mask), dim=1), flo1 * drm_t1_unaligned, None, 'avg')
+
+            mask_t1_t01 = drm_t1_t01[:, 1:]
+            # mask_t1_t12 = drm_t1_t12[:, 1:]
 
             gap_t1_t01 = mask_t1_t01 < 0.999
             # gap_t1_t12 = mask_t1_t12 < 0.999
+
+            drm_t1_t01 = drm_t1_t01[:, :1]
+            # drm_t1_t12 = drm_t1_t12[:, :1]
 
             drm_t1_t01[gap_t1_t01] = drm_t1_unaligned[gap_t1_t01]
             # drm_t1_t12[gap_t1_t12] = drm_t0_unaligned[gap_t1_t12]

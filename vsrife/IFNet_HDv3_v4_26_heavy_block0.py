@@ -69,5 +69,6 @@ class IFNet(nn.Module):
     def forward(self, img0, img1, timestep, f0, f1):
         img0 = img0.clamp(0.0, 1.0)
         img1 = img1.clamp(0.0, 1.0)
+        inp = torch.cat((img0, img1, f0, f1, timestep), 1)
         
-        return self.block0(torch.cat((img0, img1, f0, f1, timestep), 1), None, scale=self.scale_list[0])
+        return self.block0(inp, None, scale=self.scale_list[0])
