@@ -14,8 +14,10 @@ import torch.nn.functional as F
 import vapoursynth as vs
 from torch._decomp import get_decompositions
 from .softsplat.softsplat_torch import softsplat as fwarp
+
 try:
     import cupy
+
     if cupy.cuda.get_cuda_path() != None:
         from .softsplat.softsplat import softsplat as fwarp
 except Exception:
@@ -38,27 +40,27 @@ models = [
 
 @torch.inference_mode()
 def rife(
-    clip: vs.VideoNode,
-    device_index: int = 0,
-    model: str = "4.26.heavy",
-    factor_num: int = 2,
-    factor_den: int = 1,
-    fps_num: int | None = None,
-    fps_den: int | None = None,
-    scale: float = 1.0,
-    ensemble: bool = False,
-    sc: bool = False,
-    sc_threshold: float | None = None,
-    trt: bool = False,
-    trt_static_shape: bool = True,
-    trt_min_shape: list[int] = [128, 128],
-    trt_opt_shape: list[int] = [1920, 1080],
-    trt_max_shape: list[int] = [1920, 1080],
-    trt_debug: bool = False,
-    trt_workspace_size: int = 0,
-    trt_max_aux_streams: int | None = None,
-    trt_optimization_level: int | None = None,
-    trt_cache_dir: str = model_dir,
+        clip: vs.VideoNode,
+        device_index: int = 0,
+        model: str = "4.26.heavy",
+        factor_num: int = 2,
+        factor_den: int = 1,
+        fps_num: int | None = None,
+        fps_den: int | None = None,
+        scale: float = 1.0,
+        ensemble: bool = False,
+        sc: bool = False,
+        sc_threshold: float | None = None,
+        trt: bool = False,
+        trt_static_shape: bool = True,
+        trt_min_shape: list[int] = [128, 128],
+        trt_opt_shape: list[int] = [1920, 1080],
+        trt_max_shape: list[int] = [1920, 1080],
+        trt_debug: bool = False,
+        trt_workspace_size: int = 0,
+        trt_max_aux_streams: int | None = None,
+        trt_optimization_level: int | None = None,
+        trt_cache_dir: str = model_dir,
 ) -> vs.VideoNode:
     """Real-Time Intermediate Flow Estimation for Video Frame Interpolation
 
@@ -211,34 +213,34 @@ def rife(
         flownet_engine_path = os.path.join(
             os.path.realpath(trt_cache_dir),
             (
-                f"{model_name}"
-                + f"_{dimensions}"
-                + f"_{'fp16' if fp16 else 'fp32'}"
-                + f"_scale-{scale}"
-                + f"_ensemble-{ensemble}"
-                + f"_{torch.cuda.get_device_name(device)}"
-                + f"_trt-{tensorrt.__version__}"
-                + (f"_workspace-{trt_workspace_size}" if trt_workspace_size > 0 else "")
-                + (f"_aux-{trt_max_aux_streams}" if trt_max_aux_streams is not None else "")
-                + (f"_level-{trt_optimization_level}" if trt_optimization_level is not None else "")
-                + ".ts"
+                    f"{model_name}"
+                    + f"_{dimensions}"
+                    + f"_{'fp16' if fp16 else 'fp32'}"
+                    + f"_scale-{scale}"
+                    + f"_ensemble-{ensemble}"
+                    + f"_{torch.cuda.get_device_name(device)}"
+                    + f"_trt-{tensorrt.__version__}"
+                    + (f"_workspace-{trt_workspace_size}" if trt_workspace_size > 0 else "")
+                    + (f"_aux-{trt_max_aux_streams}" if trt_max_aux_streams is not None else "")
+                    + (f"_level-{trt_optimization_level}" if trt_optimization_level is not None else "")
+                    + ".ts"
             ),
         )
 
         block0_engine_path = os.path.join(
             os.path.realpath(trt_cache_dir),
             (
-                f"{model_name}"
-                + f"_{dimensions}"
-                + f"_{'fp16' if fp16 else 'fp32'}"
-                + f"_scale-{scale}"
-                + f"_ensemble-{ensemble}"
-                + f"_{torch.cuda.get_device_name(device)}"
-                + f"_trt-{tensorrt.__version__}"
-                + (f"_workspace-{trt_workspace_size}" if trt_workspace_size > 0 else "")
-                + (f"_aux-{trt_max_aux_streams}" if trt_max_aux_streams is not None else "")
-                + (f"_level-{trt_optimization_level}" if trt_optimization_level is not None else "")
-                + ".ts0"
+                    f"{model_name}"
+                    + f"_{dimensions}"
+                    + f"_{'fp16' if fp16 else 'fp32'}"
+                    + f"_scale-{scale}"
+                    + f"_ensemble-{ensemble}"
+                    + f"_{torch.cuda.get_device_name(device)}"
+                    + f"_trt-{tensorrt.__version__}"
+                    + (f"_workspace-{trt_workspace_size}" if trt_workspace_size > 0 else "")
+                    + (f"_aux-{trt_max_aux_streams}" if trt_max_aux_streams is not None else "")
+                    + (f"_level-{trt_optimization_level}" if trt_optimization_level is not None else "")
+                    + ".ts0"
             ),
         )
 
@@ -255,8 +257,6 @@ def rife(
                     torch.zeros([1, 3, ph, pw], dtype=dtype, device=device),
                     torch.zeros([1, 3, ph, pw], dtype=dtype, device=device),
                     torch.zeros([1, 1, ph, pw], dtype=dtype, device=device),
-                    torch.zeros([2], dtype=torch.float, device=device),
-                    torch.zeros([1, 2, ph, pw], dtype=torch.float, device=device),
                     torch.zeros([1, encode_channel, ph, pw], dtype=dtype, device=device),
                     torch.zeros([1, encode_channel, ph, pw], dtype=dtype, device=device),
                 )
@@ -276,8 +276,6 @@ def rife(
                     torch.zeros([1, 3, ph, pw], dtype=dtype, device=device),
                     torch.zeros([1, 3, ph, pw], dtype=dtype, device=device),
                     torch.zeros([1, 1, ph, pw], dtype=dtype, device=device),
-                    torch.zeros([2], dtype=torch.float, device=device),
-                    torch.zeros([1, 2, ph, pw], dtype=torch.float, device=device),
                 )
 
                 block0_example_inputs = (
@@ -311,8 +309,6 @@ def rife(
                         "img0": {2: dim_height, 3: dim_width},
                         "img1": {2: dim_height, 3: dim_width},
                         "timestep": {2: dim_height, 3: dim_width},
-                        "tenFlow_div": {},
-                        "backwarp_tenGrid": {2: dim_height, 3: dim_width},
                         "f0": {2: dim_height, 3: dim_width},
                         "f1": {2: dim_height, 3: dim_width},
                     }
@@ -348,18 +344,6 @@ def rife(
                             max_shape=[1, 1] + trt_max_shape,
                             dtype=dtype,
                             name="timestep",
-                        ),
-                        torch_tensorrt.Input(
-                            shape=[2],
-                            dtype=torch.float,
-                            name="tenFlow_div",
-                        ),
-                        torch_tensorrt.Input(
-                            min_shape=[1, 2] + trt_min_shape,
-                            opt_shape=[1, 2] + trt_opt_shape,
-                            max_shape=[1, 2] + trt_max_shape,
-                            dtype=torch.float,
-                            name="backwarp_tenGrid",
                         ),
                         torch_tensorrt.Input(
                             min_shape=[1, encode_channel] + trt_min_shape,
@@ -430,8 +414,6 @@ def rife(
                         "img0": {2: dim_height, 3: dim_width},
                         "img1": {2: dim_height, 3: dim_width},
                         "timestep": {2: dim_height, 3: dim_width},
-                        "tenFlow_div": {},
-                        "backwarp_tenGrid": {2: dim_height, 3: dim_width},
                     }
 
                     block0_dynamic_shapes = {
@@ -461,18 +443,6 @@ def rife(
                             max_shape=[1, 1] + trt_max_shape,
                             dtype=dtype,
                             name="timestep",
-                        ),
-                        torch_tensorrt.Input(
-                            shape=[2],
-                            dtype=torch.float,
-                            name="tenFlow_div",
-                        ),
-                        torch_tensorrt.Input(
-                            min_shape=[1, 2] + trt_min_shape,
-                            opt_shape=[1, 2] + trt_opt_shape,
-                            max_shape=[1, 2] + trt_max_shape,
-                            dtype=torch.float,
-                            name="backwarp_tenGrid",
                         ),
                     ]
 
@@ -591,14 +561,6 @@ def rife(
     for i in range(1, factor_num):
         t = i * factor_den % factor_num / factor_num
         timestep[t] = torch.full([1, 1, ph, pw], t, dtype=dtype, device=device)
-
-    tenFlow_div = torch.tensor([(pw - 1.0) / 2.0, (ph - 1.0) / 2.0], dtype=torch.float, device=device)
-
-    tenHorizontal = torch.linspace(-1.0, 1.0, pw, dtype=torch.float, device=device)
-    tenHorizontal = tenHorizontal.view(1, 1, 1, pw).expand(-1, -1, ph, -1)
-    tenVertical = torch.linspace(-1.0, 1.0, ph, dtype=torch.float, device=device)
-    tenVertical = tenVertical.view(1, 1, ph, 1).expand(-1, -1, -1, pw)
-    backwarp_tenGrid = torch.cat([tenHorizontal, tenVertical], 1)
 
     torch.cuda.current_stream(device).synchronize()
 
@@ -776,19 +738,14 @@ def rife(
             drm_t1_t01[gap_t1_t01] = drm_t1_unaligned[gap_t1_t01]
             # drm_t1_t12[gap_t1_t12] = drm_t0_unaligned[gap_t1_t12]
 
-            drm_t1_t01 = F.interpolate(drm_t1_t01, size=(img1.shape[2], img1.shape[3]), mode="bilinear", align_corners=False)
+            drm_t1_t01 = F.interpolate(drm_t1_t01, size=(img1.shape[2], img1.shape[3]), mode="bilinear",
+                                       align_corners=False)
             # drm_t1_t12 = F.interpolate(drm_t1_t12, size=(img1.shape[2], img1.shape[3]), mode="bilinear", align_corners=False)
 
             if Head is not None:
-                output = flownet(img1, img0, drm_t1_t01, tenFlow_div, backwarp_tenGrid, f1, f0)
+                output = flownet(img1, img0, drm_t1_t01, f1, f0)
             else:
-                output = flownet(img1, img0, drm_t1_t01, tenFlow_div, backwarp_tenGrid)
-
-            # # test
-            # if Head is not None:
-            #     output = flownet(img1, img0, torch.full([1, 1, ph, pw], 0.5, dtype=dtype, device=device), tenFlow_div, backwarp_tenGrid, f1, f0)
-            # else:
-            #     output = flownet(img1, img0, torch.full([1, 1, ph, pw], 0.5, dtype=dtype, device=device), tenFlow_div, backwarp_tenGrid)
+                output = flownet(img1, img0, drm_t1_t01)
 
             inf_stream.synchronize()
 
@@ -813,18 +770,19 @@ def rife(
         clip1 = clip1[::factor_den]
         clip2 = clip2[::factor_den]
 
-    return clip0.std.FrameEval(lambda n: clip0.std.ModifyFrame([clip0, clip1, clip2], inference), clip_src=[clip0, clip1, clip2])
+    return clip0.std.FrameEval(lambda n: clip0.std.ModifyFrame([clip0, clip1, clip2], inference),
+                               clip_src=[clip0, clip1, clip2])
 
 
 def init_module(
-    model_name: str,
-    IFNet: nn.Module,
-    Block0: nn.Module,
-    scale: float,
-    ensemble: bool,
-    device: torch.device,
-    dtype: torch.dtype,
-    Head: nn.Module | nn.Sequential | None,
+        model_name: str,
+        IFNet: nn.Module,
+        Block0: nn.Module,
+        scale: float,
+        ensemble: bool,
+        device: torch.device,
+        dtype: torch.dtype,
+        Head: nn.Module | nn.Sequential | None,
 ) -> tuple[nn.Module, nn.Module | None]:
     state_dict = torch.load(os.path.join(model_dir, model_name), map_location="cpu", weights_only=True, mmap=True)
     state_dict = {k.replace("module.", ""): v for k, v in state_dict.items() if "module." in k}
@@ -842,11 +800,8 @@ def init_module(
     if Head is not None:
         encode_state_dict = {k.replace("encode.", ""): v for k, v in state_dict.items() if "encode." in k}
 
-        if isinstance(Head, nn.Sequential):
-            encode = Head
-        else:
-            with torch.device("meta"):
-                encode = Head()
+        with torch.device("meta"):
+            encode = Head(scale)
         encode.load_state_dict(encode_state_dict, assign=True)
         encode.eval().to(device, dtype)
 
