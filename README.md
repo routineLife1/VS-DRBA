@@ -33,7 +33,7 @@ specified at first run, set `auto_download=True` in `drba_rife()`.
 
 ## Usage
 ```python
-from vsdrba import drba_rife==1.0.1
+from vsdrba import drba_rife
 
 ret = drba_rife(clip)
 ```
