@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vsdrba"
+version = "1.0.1"
+description = "DRBA_RIFE function for VapourSynth"
+readme = "README.md"
+requires-python = ">=3.10"
+license-files = { paths = ["LICENSE"] }
+authors = [
+  { name = "routineLife1", email = "1315176066@qq.com" },
+]
+keywords = [
+  "PyTorch",
+  "RIFE",
+  "TensorRT",
+  "VapourSynth",
+  "DRBA",
+]
+classifiers = [
+  "Environment :: GPU :: NVIDIA CUDA",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Video",
+]
+dependencies = [
+  "numpy",
+  "requests",
+  "torch>=2.6.0",
+  "tqdm",
+  "VapourSynth>=66",
+]
+
+[project.urls]
+Homepage = "https://github.com/routineLife1/VS-DRBA"
+Issues = "https://github.com/routineLife1/VS-DRBA/issues"
