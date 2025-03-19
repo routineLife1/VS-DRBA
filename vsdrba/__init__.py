@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import vapoursynth as vs
+from .__main__ import download_model
 from torch._decomp import get_decompositions
 from .softsplat.softsplat_torch import softsplat as fwarp
 
@@ -204,7 +205,7 @@ def drba_rife(
         if any(trt_min_shape[i] >= trt_max_shape[i] for i in range(2)):
             raise vs.Error("rife: trt_min_shape must be less than trt_max_shape")
 
-    if os.path.getsize(os.path.join(model_dir, f"flownet_v{model}.pkl")) == 0:
+    if not os.path.exists(os.path.join(model_dir, f"flownet_v{model}.pkl")) or os.path.getsize(os.path.join(model_dir, f"flownet_v{model}.pkl")) == 0:
         if auto_download:
             download_model(f"https://github.com/HolyWu/vs-rife/releases/download/model/flownet_v{model}.pkl")
         else:
@@ -472,7 +473,7 @@ def drba_rife(
         flownet_engine_path = os.path.join(
             os.path.realpath(trt_cache_dir),
             (
-                    f"{model_name}"
+                    f"DRBA_{model_name}"
                     + f"_{dimensions}"
                     + f"_{'fp16' if fp16 else 'fp32'}"
                     + f"_scale-{scale}"
@@ -489,7 +490,7 @@ def drba_rife(
         block0_engine_path = os.path.join(
             os.path.realpath(trt_cache_dir),
             (
-                    f"{model_name}"
+                    f"DRBA_{model_name}"
                     + f"_{dimensions}"
                     + f"_{'fp16' if fp16 else 'fp32'}"
                     + f"_scale-{scale}"
