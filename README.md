@@ -26,7 +26,7 @@ pip install -U cupy-cuda12x
 
 ## Installation
 ```
-pip install -U vsdrba==1.0.1
+pip install -U vsdrba==1.0.2
 ```
 If you want to download all models at once, run `python -m vsdrba`. If you prefer to only download the model you
 specified at first run, set `auto_download=True` in `drba_rife()`.
