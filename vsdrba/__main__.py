@@ -7,7 +7,12 @@ from tqdm import tqdm
 def download_model(url: str) -> None:
     filename = url.split("/")[-1]
     r = requests.get(url, stream=True)
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "models", filename), "wb") as f:
+
+    save_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "models")
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    with open(os.path.join(save_dir, filename), "wb") as f:
         with tqdm(
             unit="B",
             unit_scale=True,
